@@ -13,6 +13,7 @@ import {
   TotalPassCount,
   LoginList,
 } from './styles';
+import { useEffect } from 'react';
 
 interface LoginDataProps {
   id: string;
@@ -30,20 +31,32 @@ export function Home() {
 
   async function loadData() {
     const dataKey = '@savepass:logins';
-    // Get asyncStorage data, use setSearchListData and setData
+
+    const loginData = await AsyncStorage.getItem(dataKey)
+    const formattedLoginData: LoginListDataProps = loginData ? JSON.parse(loginData) : []
+
+    setData(formattedLoginData)
+    setSearchListData(formattedLoginData)
   }
 
   function handleFilterLoginData() {
-    // Filter results inside data, save with setSearchListData
+    setSearchListData(oldState => {
+      const allData = [...data]
+      const filteredData = allData.filter(item => item.service_name.toLowerCase().includes(searchText.toLowerCase()))
+      return filteredData
+    })
   }
 
   function handleChangeInputText(text: string) {
-    // Update searchText value
+    setSearchText(text)
   }
 
-  useFocusEffect(useCallback(() => {
+  // useFocusEffect(useCallback(() => {
+  //   loadData();
+  // }, []));
+  useEffect(() => {
     loadData();
-  }, []));
+  }, []);
 
   return (
     <>
